@@ -128,7 +128,7 @@ func (m *Editor) SetAutoSaveHistory(file string, autoSave bool) {
 }
 
 // SetSuggestionExec sets the suggestion provider function.
-func (m *Editor) SetSuggestionExec(f func(string) string) {
+func (m *Editor) SetSuggestionExec(f func(string) tea.Cmd) {
 	m.Model.SuggestionExec = f
 }
 

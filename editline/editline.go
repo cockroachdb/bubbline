@@ -27,6 +27,9 @@ import (
 // with Ctrl+C.
 var ErrInterrupted = errors.New("interrupted")
 
+// SuggestionMsg is sent when an asynchronous suggestion is ready.
+type SuggestionMsg string
+
 // Style that will be applied to the editor.
 type Style struct {
 	Editor textarea.Style
@@ -197,9 +200,15 @@ type Model struct {
 	// Only takes effect at Reset() or Focus().
 	ShowLineNumbers bool
 
-	// SuggestionExec is a function that returns a "ghost text" suggestion
-	// for the current input buffer. It is called on every change.
-	SuggestionExec func(currentText string) (suggestion string)
+	// SuggestionExec is an asynchronous function that returns a "ghost text"
+	// suggestion for the current input buffer. It is called on every text
+	// change.
+	//
+	// It should return a tea.Cmd that, when run, performs the suggestion
+	// logic (e.g., an API call) and returns the result as a SuggestionMsg.
+	// To prevent excessive calls, this function should implement its own
+	// debouncing logic.
+	SuggestionExec func(currentText string) tea.Cmd
 
 	// suggestionText holds the current suggestion returned by SuggestionExec.
 	suggestionText string
@@ -852,6 +861,9 @@ func (m *Model) Update(imsg tea.Msg) (tea.Model, tea.Cmd) {
 	oldVal := m.text.Value()
 
 	switch msg := imsg.(type) {
+	case SuggestionMsg:
+		m.suggestionText = string(msg)
+		return m, nil
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.KeyMap.Debug):
@@ -1025,12 +1037,12 @@ func (m *Model) Update(imsg tea.Msg) (tea.Model, tea.Cmd) {
 	m.text, newCmd = m.text.Update(imsg)
 	cmd = tea.Batch(cmd, newCmd, m.updateTextSz())
 
-	if m.SuggestionExec != nil {
-		// If the text has changed, or if there's no current suggestion,
-		// we ask the suggestion provider for a new one.
-		if m.text.Value() != oldVal || m.suggestionText == "" {
-			m.suggestionText = m.SuggestionExec(m.text.Value())
-		}
+	if m.SuggestionExec != nil && m.text.Value() != oldVal {
+		// Clear the old suggestion immediately.
+		m.suggestionText = ""
+
+		// Get the command from the provider to fetch the new suggestion.
+		cmd = tea.Batch(cmd, m.SuggestionExec(m.text.Value()))
 	}
 
 	// Always pass the current suggestion (even if empty) down to the text area.
