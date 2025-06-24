@@ -54,48 +54,50 @@ func DefaultStyles() (Style, Style) {
 type KeyMap struct {
 	textarea.KeyMap
 
-	EndOfInput      key.Binding
-	Interrupt       key.Binding
-	AutoComplete    key.Binding
-	SignalQuit      key.Binding
-	SignalTTYStop   key.Binding
-	Refresh         key.Binding
-	AbortSearch     key.Binding
-	SearchBackward  key.Binding
-	HistoryPrevious key.Binding
-	HistoryNext     key.Binding
-	Debug           key.Binding
-	HideShowPrompt  key.Binding
-	AlwaysNewline   key.Binding
-	AlwaysComplete  key.Binding
-	MoreHelp        key.Binding
-	ReflowLine      key.Binding
-	ReflowAll       key.Binding
-	ExternalEdit    key.Binding
+	EndOfInput       key.Binding
+	Interrupt        key.Binding
+	AutoComplete     key.Binding
+	SignalQuit       key.Binding
+	SignalTTYStop    key.Binding
+	Refresh          key.Binding
+	AbortSearch      key.Binding
+	SearchBackward   key.Binding
+	HistoryPrevious  key.Binding
+	HistoryNext      key.Binding
+	Debug            key.Binding
+	HideShowPrompt   key.Binding
+	AlwaysNewline    key.Binding
+	AlwaysComplete   key.Binding
+	MoreHelp         key.Binding
+	ReflowLine       key.Binding
+	ReflowAll        key.Binding
+	ExternalEdit     key.Binding
+	AcceptSuggestion key.Binding
 }
 
 // DefaultKeyMap is the default set of key bindings.
 var DefaultKeyMap = KeyMap{
 	KeyMap: textarea.DefaultKeyMap,
 
-	AlwaysNewline:   key.NewBinding(key.WithKeys("ctrl+o"), key.WithHelp("C-o", "force newline")),
-	AlwaysComplete:  key.NewBinding(key.WithKeys("alt+enter", "alt+\r"), key.WithHelp("M-⤶/M-C-m", "force complete")),
-	AutoComplete:    key.NewBinding(key.WithKeys("tab"), key.WithHelp("tab", "try autocomplete")),
-	Interrupt:       key.NewBinding(key.WithKeys("ctrl+c"), key.WithHelp("C-c", "clear/cancel")),
-	SignalQuit:      key.NewBinding(key.WithKeys(`ctrl+\`)),
-	SignalTTYStop:   key.NewBinding(key.WithKeys("ctrl+z")),
-	Refresh:         key.NewBinding(key.WithKeys("ctrl+l"), key.WithHelp("C-l", "refresh display")),
-	EndOfInput:      key.NewBinding(key.WithKeys("ctrl+d"), key.WithHelp("C-d", "erase/stop")),
-	AbortSearch:     key.NewBinding(key.WithKeys("ctrl+g"), key.WithDisabled()),
-	SearchBackward:  key.NewBinding(key.WithKeys("ctrl+r"), key.WithHelp("C-r", "search hist"), key.WithDisabled()),
-	HistoryPrevious: key.NewBinding(key.WithKeys("alt+p"), key.WithHelp("M-p", "prev history entry"), key.WithDisabled()),
-	HistoryNext:     key.NewBinding(key.WithKeys("alt+n"), key.WithHelp("M-n", "next history entry"), key.WithDisabled()),
-	HideShowPrompt:  key.NewBinding(key.WithKeys("alt+."), key.WithHelp("M-.", "hide/show prompt")),
-	MoreHelp:        key.NewBinding(key.WithKeys("alt+?"), key.WithHelp("M-?", "toggle key help")),
-	ReflowLine:      key.NewBinding(key.WithKeys("alt+q"), key.WithHelp("M-q", "reflow line")),
-	ReflowAll:       key.NewBinding(key.WithKeys("alt+Q", "alt+`"), key.WithHelp("M-S-q/M-`", "reflow all")),
-	Debug:           key.NewBinding(key.WithKeys("ctrl+_", "ctrl+@"), key.WithHelp("C-_/C-@", "debug mode"), key.WithDisabled()),
-	ExternalEdit:    key.NewBinding(key.WithKeys("alt+f2", "alt+2"), key.WithHelp("M-2/M-F2", "external edit")),
+	AlwaysNewline:    key.NewBinding(key.WithKeys("ctrl+o"), key.WithHelp("C-o", "force newline")),
+	AlwaysComplete:   key.NewBinding(key.WithKeys("alt+enter", "alt+\r"), key.WithHelp("M-⤶/M-C-m", "force complete")),
+	AutoComplete:     key.NewBinding(key.WithKeys("tab"), key.WithHelp("tab", "try autocomplete")),
+	Interrupt:        key.NewBinding(key.WithKeys("ctrl+c"), key.WithHelp("C-c", "clear/cancel")),
+	SignalQuit:       key.NewBinding(key.WithKeys(`ctrl+\`)),
+	SignalTTYStop:    key.NewBinding(key.WithKeys("ctrl+z")),
+	Refresh:          key.NewBinding(key.WithKeys("ctrl+l"), key.WithHelp("C-l", "refresh display")),
+	EndOfInput:       key.NewBinding(key.WithKeys("ctrl+d"), key.WithHelp("C-d", "erase/stop")),
+	AbortSearch:      key.NewBinding(key.WithKeys("ctrl+g"), key.WithDisabled()),
+	SearchBackward:   key.NewBinding(key.WithKeys("ctrl+r"), key.WithHelp("C-r", "search hist"), key.WithDisabled()),
+	HistoryPrevious:  key.NewBinding(key.WithKeys("alt+p"), key.WithHelp("M-p", "prev history entry"), key.WithDisabled()),
+	HistoryNext:      key.NewBinding(key.WithKeys("alt+n"), key.WithHelp("M-n", "next history entry"), key.WithDisabled()),
+	HideShowPrompt:   key.NewBinding(key.WithKeys("alt+."), key.WithHelp("M-.", "hide/show prompt")),
+	MoreHelp:         key.NewBinding(key.WithKeys("alt+?"), key.WithHelp("M-?", "toggle key help")),
+	ReflowLine:       key.NewBinding(key.WithKeys("alt+q"), key.WithHelp("M-q", "reflow line")),
+	ReflowAll:        key.NewBinding(key.WithKeys("alt+Q", "alt+`"), key.WithHelp("M-S-q/M-`", "reflow all")),
+	Debug:            key.NewBinding(key.WithKeys("ctrl+_", "ctrl+@"), key.WithHelp("C-_/C-@", "debug mode"), key.WithDisabled()),
+	ExternalEdit:     key.NewBinding(key.WithKeys("alt+f2", "alt+2"), key.WithHelp("M-2/M-F2", "external edit")),
+	AcceptSuggestion: key.NewBinding(key.WithKeys("right", "ctrl+f"), key.WithHelp("→/C-f", "accept suggestion")),
 }
 
 // Model represents a widget that supports multi-line entry with
@@ -194,6 +196,13 @@ type Model struct {
 	// of each input line.
 	// Only takes effect at Reset() or Focus().
 	ShowLineNumbers bool
+
+	// SuggestionExec is a function that returns a "ghost text" suggestion
+	// for the current input buffer. It is called on every change.
+	SuggestionExec func(currentText string) (suggestion string)
+
+	// suggestionText holds the current suggestion returned by SuggestionExec.
+	suggestionText string
 
 	// externalEditorExt is the extension to use when creating a temporary file for
 	// an external editor.
@@ -840,6 +849,7 @@ func (m *Model) Update(imsg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	m.lastEvent = imsg
+	oldVal := m.text.Value()
 
 	switch msg := imsg.(type) {
 	case tea.KeyMsg:
@@ -866,6 +876,18 @@ func (m *Model) Update(imsg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, m.KeyMap.Refresh):
 			return m, tea.Batch(cmd, tea.ClearScreen)
+
+		case key.Matches(msg, m.KeyMap.AcceptSuggestion):
+			// Only accept the suggestion if the cursor is at the very end of the line.
+			if m.suggestionText != "" && m.text.CursorPos() == len(m.text.CurrentLine()) {
+				// Insert the suggestion text into the input buffer.
+				m.text.InsertString(m.suggestionText)
+				// Clear the suggestion so it doesn't reappear.
+				m.suggestionText = ""
+				m.text.Suggestion = ""
+				// Consume the keypress so it doesn't also move the cursor.
+				imsg = nil
+			}
 
 		case key.Matches(msg, m.KeyMap.MoreHelp):
 			m.help.ShowAll = !m.help.ShowAll
@@ -1003,6 +1025,16 @@ func (m *Model) Update(imsg tea.Msg) (tea.Model, tea.Cmd) {
 	m.text, newCmd = m.text.Update(imsg)
 	cmd = tea.Batch(cmd, newCmd, m.updateTextSz())
 
+	if m.SuggestionExec != nil {
+		// If the text has changed, or if there's no current suggestion,
+		// we ask the suggestion provider for a new one.
+		if m.text.Value() != oldVal || m.suggestionText == "" {
+			m.suggestionText = m.SuggestionExec(m.text.Value())
+		}
+	}
+
+	// Always pass the current suggestion (even if empty) down to the text area.
+	m.text.Suggestion = m.suggestionText
 	if stop {
 		m.help.ShowAll = false
 		// Reset the search/history navigation cursor to the end.

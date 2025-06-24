@@ -127,6 +127,11 @@ func (m *Editor) SetAutoSaveHistory(file string, autoSave bool) {
 	m.histFile = file
 }
 
+// SetSuggestionExec sets the suggestion provider function.
+func (m *Editor) SetSuggestionExec(f func(string) string) {
+	m.Model.SuggestionExec = f
+}
+
 // Values is the interface to the values displayed by the completion
 // bubble.
 type Values = complete.Values
