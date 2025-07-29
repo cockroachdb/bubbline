@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 
 	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/bubbles/cursor"
@@ -135,6 +136,7 @@ type Style struct {
 	Placeholder      lipgloss.Style
 	Prompt           lipgloss.Style
 	Text             lipgloss.Style
+	Suggestion       lipgloss.Style
 }
 
 // Model is the Bubble Tea model for this text area element.
@@ -189,6 +191,9 @@ type Model struct {
 	// MaxWidth is the maximum width of the text area in columns. If 0 or less,
 	// there's no limit.
 	MaxWidth int
+
+	// Suggestion is the ghost text to display after the cursor.
+	Suggestion string
 
 	// If promptFunc is set, it replaces Prompt as a generator for
 	// prompt strings at the beginning of each line.
@@ -1128,36 +1133,56 @@ func (m Model) View() string {
 						s.WriteString(style.Render(m.style.LineNumber.Render(fmt.Sprintf(m.lineNumberFormat, l+1))))
 					}
 				} else {
-					s.WriteString(m.style.LineNumber.Render(style.Render("   ")))
+					s.WriteString(style.Render(m.style.LineNumber.Render("   ")))
 				}
 			}
 
 			strwidth := rw.StringWidth(string(wrappedLine))
 			padding := m.width - strwidth
-			// If the trailing space causes the line to be wider than the
-			// width, we should not draw it to the screen since it will result
-			// in an extra space at the end of the line which can look off when
-			// the cursor line is showing.
 			if strwidth > m.width {
-				// The character causing the line to be wider than the width is
-				// guaranteed to be a space since any other character would
-				// have been wrapped.
 				wrappedLine = []rune(strings.TrimSuffix(string(wrappedLine), " "))
 				padding -= m.width - strwidth
 			}
+
+			// This block handles rendering the active line with the cursor.
 			if m.row == l && lineInfo.RowOffset == wl {
+				// Render the text before the cursor.
 				s.WriteString(style.Render(string(wrappedLine[:lineInfo.ColumnOffset])))
-				if m.col >= len(line) && lineInfo.CharOffset >= m.width {
-					m.Cursor.SetChar(" ")
-					s.WriteString(m.Cursor.View())
+
+				// If we have a suggestion AND the cursor is at the end of the input...
+				if m.Suggestion != "" && m.col == len(line) {
+					// then we render the suggestion seamlessly with the cursor.
+					// The first character of the suggestion becomes the cursor itself.
+					suggestionRune, size := utf8.DecodeRuneInString(m.Suggestion)
+					m.Cursor.SetChar(string(suggestionRune))
+					s.WriteString(m.style.Suggestion.Render(m.Cursor.View()))
+
+					// And we render the rest of the suggestion immediately after.
+					remainingSuggestion := m.Suggestion[size:]
+					userInputWidth := rw.StringWidth(string(wrappedLine))
+					// The +1 is for the cursor character we just rendered.
+					remainingWidth := m.width - userInputWidth - 1
+					if remainingWidth > 0 {
+						suggestionText := rw.Truncate(remainingSuggestion, remainingWidth, "…")
+						s.WriteString(m.style.Suggestion.Render(suggestionText))
+					}
 				} else {
-					m.Cursor.SetChar(string(wrappedLine[lineInfo.ColumnOffset]))
-					s.WriteString(style.Render(m.Cursor.View()))
-					s.WriteString(style.Render(string(wrappedLine[lineInfo.ColumnOffset+1:])))
+					// ...otherwise, use the original cursor rendering logic.
+					if m.col >= len(line) && lineInfo.CharOffset >= m.width {
+						m.Cursor.SetChar(" ")
+						s.WriteString(m.Cursor.View())
+					} else {
+						m.Cursor.SetChar(string(wrappedLine[lineInfo.ColumnOffset]))
+						s.WriteString(style.Render(m.Cursor.View()))
+						s.WriteString(style.Render(string(wrappedLine[lineInfo.ColumnOffset+1:])))
+					}
 				}
+
 			} else {
+				// This is for all non-active lines.
 				s.WriteString(style.Render(string(wrappedLine)))
 			}
+
 			s.WriteString(style.Render(strings.Repeat(" ", max(0, padding))))
 			s.WriteRune('\n')
 			newLines++
