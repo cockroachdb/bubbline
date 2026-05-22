@@ -3,6 +3,7 @@ package bubbline
 import (
 	"context"
 	"errors"
+	"io"
 	"os"
 	"os/signal"
 
@@ -18,6 +19,18 @@ type Editor struct {
 
 	autoSaveHistory bool
 	histFile        string
+
+	// Input, if non-nil, is the io.Reader the bubbletea program reads
+	// terminal events from. When nil (the default), bubbletea reads from
+	// the process's stdin. Embedders that drive the shell over a PTY or
+	// network stream set this to bind the editor to their I/O.
+	Input io.Reader
+
+	// Output, if non-nil, is the io.Writer the bubbletea program writes
+	// to. When nil (the default), bubbletea writes to the process's
+	// stdout. Set in tandem with Input when the editor is driven over a
+	// non-stdio transport.
+	Output io.Writer
 }
 
 // New instantiates an editor.
@@ -69,7 +82,14 @@ func (m *Editor) GetLine() (string, error) {
 		}
 	}()
 	// Create a Bubbletea program to handle our input.
-	p := tea.NewProgram(m, tea.WithoutSignalHandler(), tea.WithContext(ctx))
+	opts := []tea.ProgramOption{tea.WithoutSignalHandler(), tea.WithContext(ctx)}
+	if m.Input != nil {
+		opts = append(opts, tea.WithInput(m.Input))
+	}
+	if m.Output != nil {
+		opts = append(opts, tea.WithOutput(m.Output))
+	}
+	p := tea.NewProgram(m, opts...)
 	m.Reset()
 	if _, err := p.Run(); err != nil {
 		// Was a signal received?
