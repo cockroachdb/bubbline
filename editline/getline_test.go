@@ -41,22 +41,22 @@ func TestBubbline(t *testing.T) {
 			catwalk.WithUpdater(testCmd),
 			catwalk.WithObserver("value", func(out io.Writer, m tea.Model) error {
 				s := m.(*bubbline.Editor).Value()
-				fmt.Fprintf(out, "%q", s)
+				_, _ = fmt.Fprintf(out, "%q", s)
 				return nil
 			}),
 			catwalk.WithObserver("history", func(out io.Writer, m tea.Model) error {
 				h := m.(*bubbline.Editor).GetHistory()
 				for _, e := range h {
-					fmt.Fprintf(out, "%s\n", e)
+					_, _ = fmt.Fprintf(out, "%s\n", e)
 				}
 				return nil
 			}),
 			catwalk.WithObserver("err", func(out io.Writer, m tea.Model) error {
 				e := m.(*bubbline.Editor).Err
 				if e != nil {
-					fmt.Fprintf(out, "%v", e)
+					_, _ = fmt.Fprintf(out, "%v", e)
 				} else {
-					fmt.Fprintf(out, "<no error>")
+					_, _ = fmt.Fprintf(out, "<no error>")
 				}
 				return nil
 			}),
@@ -91,9 +91,9 @@ func testCmd(m tea.Model, cmd string, args ...string) (bool, tea.Model, tea.Cmd,
 	case "limit_history_size":
 		t.MaxHistorySize = 2
 	case "unset_editor_env":
-		os.Unsetenv("EDITOR")
+		_ = os.Unsetenv("EDITOR")
 	case "set_editor_env":
-		os.Setenv("EDITOR", "invalid")
+		_ = os.Setenv("EDITOR", "invalid")
 	case "noop":
 	case "reset":
 		t.Reset()

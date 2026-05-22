@@ -5,7 +5,6 @@ package history
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 )
 
@@ -17,14 +16,14 @@ func Example_history() {
 	err = SaveHistory(nil, "/dev/null/notvalid")
 	fmt.Println(err)
 
-	f, err := ioutil.TempFile("", "test")
+	f, err := os.CreateTemp("", "test")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	fname := f.Name()
-	f.Close()
-	defer os.Remove(fname)
+	_ = f.Close()
+	defer func() { _ = os.Remove(fname) }()
 	err = SaveHistory(nil, fname)
 	fmt.Println(err)
 	_, err = LoadHistory(fname)

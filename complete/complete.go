@@ -71,7 +71,7 @@ var DefaultStyles = func() (c Styles) {
 	c.FocusedTitleBar = lipgloss.NewStyle()
 	c.BlurredTitleBar = lipgloss.NewStyle()
 	c.FocusedTitle = lipgloss.NewStyle().Background(lipgloss.Color("62")).Foreground(lipgloss.Color("230"))
-	c.BlurredTitle = c.FocusedTitle.Copy().Foreground(subtle)
+	c.BlurredTitle = c.FocusedTitle.Foreground(subtle)
 	c.Spinner = ls.Spinner
 	c.FilterPrompt = ls.FilterPrompt
 	c.FilterCursor = ls.FilterCursor
@@ -212,7 +212,7 @@ func (r *renderer) Render(w io.Writer, m list.Model, index int, item list.Item) 
 	if r.m.selectedList == r.listIdx && index == m.Index() {
 		fn = st.SelectedItem.Render
 	}
-	fmt.Fprint(w, fn(s))
+	_, _ = fmt.Fprint(w, fn(s))
 }
 
 // Height is part of the list.ItemDelegate interface.

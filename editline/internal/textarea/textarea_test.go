@@ -29,35 +29,35 @@ func TestTextArea(t *testing.T) {
 			catwalk.WithUpdater(testCmd),
 			catwalk.WithObserver("value", func(out io.Writer, m tea.Model) error {
 				s := m.(*testModel).text.Value()
-				fmt.Fprintf(out, "%q", s)
+				_, _ = fmt.Fprintf(out, "%q", s)
 				return nil
 			}),
 			catwalk.WithObserver("runes", func(out io.Writer, m tea.Model) error {
 				s := m.(*testModel).text.ValueRunes()
-				fmt.Fprintf(out, "%+v", s)
+				_, _ = fmt.Fprintf(out, "%+v", s)
 				return nil
 			}),
 			catwalk.WithObserver("curline", func(out io.Writer, m tea.Model) error {
 				s := m.(*testModel).text.CurrentLine()
-				fmt.Fprintf(out, "%q", s)
+				_, _ = fmt.Fprintf(out, "%q", s)
 				return nil
 			}),
 			catwalk.WithObserver("props", func(out io.Writer, m tea.Model) error {
 				t := &m.(*testModel).text
-				fmt.Fprintf(out, "Focused: %v\n", t.Focused())
-				fmt.Fprintf(out, "Width: %d, Height: %d, LogicalHeight: %d\n", t.Width(), t.Height(), t.LogicalHeight())
-				fmt.Fprintf(out, "Length: %d, LineCount: %d, NumLinesInValue: %d, EmptyValue: %v\n",
+				_, _ = fmt.Fprintf(out, "Focused: %v\n", t.Focused())
+				_, _ = fmt.Fprintf(out, "Width: %d, Height: %d, LogicalHeight: %d\n", t.Width(), t.Height(), t.LogicalHeight())
+				_, _ = fmt.Fprintf(out, "Length: %d, LineCount: %d, NumLinesInValue: %d, EmptyValue: %v\n",
 					t.Length(), t.LineCount(), t.NumLinesInValue(), t.EmptyValue(),
 				)
 				return nil
 			}),
 			catwalk.WithObserver("pos", func(out io.Writer, m tea.Model) error {
 				t := &m.(*testModel).text
-				fmt.Fprintf(out, "Line: %d, Pos %d, (row %d, col %d, lastCharOffset %d)\n",
+				_, _ = fmt.Fprintf(out, "Line: %d, Pos %d, (row %d, col %d, lastCharOffset %d)\n",
 					t.Line(), t.CursorPos(), t.row, t.col, t.lastCharOffset,
 				)
-				fmt.Fprintf(out, "LineInfo: %+v\n", t.LineInfo())
-				fmt.Fprintf(out, "AtBeginningOfEmptyLine: %v, AtFirstLineOfInputAndView: %v, AtLastLineOfInputAndView: %v\n",
+				_, _ = fmt.Fprintf(out, "LineInfo: %+v\n", t.LineInfo())
+				_, _ = fmt.Fprintf(out, "AtBeginningOfEmptyLine: %v, AtFirstLineOfInputAndView: %v, AtLastLineOfInputAndView: %v\n",
 					t.AtBeginningOfEmptyLine(), t.AtFirstLineOfInputAndView(), t.AtLastLineOfInputAndView(),
 				)
 				return nil

@@ -743,10 +743,7 @@ func (m *Model) wordRight() {
 
 func (m *Model) doWordRight(fn func(charIdx int, pos int)) {
 	// Skip spaces forward.
-	for {
-		if m.col < len(m.value[m.row]) && !unicode.IsSpace(m.value[m.row][m.col]) {
-			break
-		}
+	for m.col >= len(m.value[m.row]) || unicode.IsSpace(m.value[m.row][m.col]) {
 		if m.row == len(m.value)-1 && m.col == len(m.value[m.row]) {
 			// End of text.
 			break
@@ -842,9 +839,9 @@ func (m *Model) repositionView() {
 	max := min + m.viewport.Height - 1
 
 	if row := m.cursorLineNumber(); row < min {
-		m.viewport.LineUp(min - row)
+		m.viewport.ScrollUp(min - row)
 	} else if row > max {
-		m.viewport.LineDown(row - max)
+		m.viewport.ScrollDown(row - max)
 	}
 }
 

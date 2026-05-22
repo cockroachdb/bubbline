@@ -310,7 +310,7 @@ func (m *Model) GetHistory() []string {
 // AddHistoryEntry adds an entry to the history navigation list.
 func (m *Model) AddHistoryEntry(s string) {
 	// Only add a new entry if it doesn't duplicate the last one.
-	if len(m.history) == 0 || !(m.DedupHistory && s == m.history[len(m.history)-1]) {
+	if len(m.history) == 0 || !m.DedupHistory || s != m.history[len(m.history)-1] {
 		m.history = append(m.history, s)
 	}
 	// Truncate if needed.
@@ -349,7 +349,7 @@ func (m *Model) Focus() tea.Cmd {
 	m.hctrl.pattern.PromptStyle = m.FocusedStyle.SearchInput.PromptStyle
 	m.hctrl.pattern.TextStyle = m.FocusedStyle.SearchInput.TextStyle
 	m.hctrl.pattern.PlaceholderStyle = m.FocusedStyle.SearchInput.PlaceholderStyle
-	m.hctrl.pattern.CursorStyle = m.FocusedStyle.SearchInput.CursorStyle
+	m.hctrl.pattern.Cursor.Style = m.FocusedStyle.SearchInput.CursorStyle
 	m.completions.Focus()
 
 	var cmd tea.Cmd
@@ -369,7 +369,7 @@ func (m *Model) Blur() {
 	m.hctrl.pattern.PromptStyle = m.BlurredStyle.SearchInput.PromptStyle
 	m.hctrl.pattern.TextStyle = m.BlurredStyle.SearchInput.TextStyle
 	m.hctrl.pattern.PlaceholderStyle = m.BlurredStyle.SearchInput.PlaceholderStyle
-	m.hctrl.pattern.CursorStyle = m.BlurredStyle.SearchInput.CursorStyle
+	m.hctrl.pattern.Cursor.Style = m.BlurredStyle.SearchInput.CursorStyle
 }
 
 // Init is part of the tea.Model interface.
