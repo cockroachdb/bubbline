@@ -39,6 +39,6 @@ func main() {
 		}
 
 		fmt.Printf("\nYou have entered: %q\n", val)
-		m.AddHistory(val)
+		_ = m.AddHistory(val)
 	}
 }

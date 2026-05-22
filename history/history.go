@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"io"
-	"io/ioutil"
 	"os"
 )
 
@@ -40,7 +39,7 @@ func loadHistoryFromFile(f io.Reader) ([]string, error) {
 		return nil, nil
 	}
 	// Read the remainder of the file.
-	contents, err := ioutil.ReadAll(f)
+	contents, err := io.ReadAll(f)
 	if err != nil {
 		return nil, err
 	}
